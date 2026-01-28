@@ -2100,6 +2100,24 @@
     </style>
 </head>
 <body data-theme="dark">
+    <!-- Password Protection Overlay -->
+    <div id="passwordOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(20px);">
+        <div style="background: rgba(26, 26, 26, 0.95); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 24px; padding: 3rem; max-width: 450px; width: 90%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+                <h2 style="font-size: 1.75rem; font-weight: 700; background: linear-gradient(135deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">Protected Content</h2>
+                <p style="color: #a0a0a0; font-size: 0.95rem;">Enter password to access Territory Plan</p>
+            </div>
+            <div>
+                <input type="password" id="passwordInput" placeholder="Enter password" style="width: 100%; padding: 1rem; background: rgba(17, 17, 17, 0.8); border: 2px solid rgba(59, 130, 246, 0.3); border-radius: 12px; color: white; font-size: 1rem; outline: none; transition: all 0.3s ease; font-family: 'Inter', sans-serif;" />
+                <button onclick="checkPassword()" style="width: 100%; margin-top: 1rem; padding: 1rem; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border: none; border-radius: 12px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);">Unlock</button>
+                <p id="errorMessage" style="color: #ef4444; font-size: 0.875rem; margin-top: 1rem; text-align: center; opacity: 0; transition: opacity 0.3s ease;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until authenticated) -->
+    <div id="mainContent" style="display: none;">
     <nav>
         <div class="nav-content">
             <div class="nav-logo">Territory Plan 2026</div>
@@ -6348,6 +6366,69 @@ Have a provider → "Cool. What's working? What isn't?"</code></pre>
                 }, 300);
             }, 3000);
         }
+    </script>
+    </div> <!-- End mainContent -->
+
+    <!-- Password Protection Script -->
+    <script>
+        // CHANGE THIS PASSWORD - use a strong password
+        const CORRECT_PASSWORD = 'CoachHub2026!';
+
+        // Check if already authenticated in this session
+        if (sessionStorage.getItem('authenticated') === 'true') {
+            unlockContent();
+        }
+
+        // Add enter key support
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // Focus password input on load
+        document.getElementById('passwordInput').focus();
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const errorMsg = document.getElementById('errorMessage');
+
+            if (input.value === CORRECT_PASSWORD) {
+                sessionStorage.setItem('authenticated', 'true');
+                unlockContent();
+            } else {
+                errorMsg.textContent = 'Incorrect password. Please try again.';
+                errorMsg.style.opacity = '1';
+                input.value = '';
+                input.style.borderColor = '#ef4444';
+
+                // Shake animation
+                input.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    input.style.animation = '';
+                    input.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                }, 500);
+            }
+        }
+
+        function unlockContent() {
+            document.getElementById('passwordOverlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('passwordOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            }, 300);
+        }
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                20%, 40%, 60%, 80% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
